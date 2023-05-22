@@ -35,7 +35,7 @@ In `scripts` there are a couple hacky scripts I used to test throughput:
 
 
 ## Design Choices
-1. Used `BufferedWriter` and didn't `flush` after processing each input; `flush` is expensive and doing so after each input decreased my 10 second throughput greatly;
+1. Used `BufferedWriter` and didn't `flush` after processing each input; `flush` is expensive and doing so after each input decreased my 10 second throughput greatly (handled up to 1/10th fewer unique numbers per 10 second window than buffering)
     - **Note:** Aside from delayed writes in general a limitation of this could lead to major delays for a few inputs until Mentat is shutdown. Could tune buffer size from default to help minimize this.
 2. Only one `consumer` due to most of what it is doing would need be synchronized if had multiple; writing to file and checking `BitSet` if we wanted to offload more work to `Reporter` it could be worth refactoring
 3. To help with clean server termination used `ConcurrentHashmap` for book keeping of active `sockets` in order to close them on exit to let the `RequestHandlers` stop blocking, could have done just a `Queue` that `Server` is aware of but then we could blow up memory with someone opening closing connections, where the map lets `Clients` cleanup before exit on client closing
